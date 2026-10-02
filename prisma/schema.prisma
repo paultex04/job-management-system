@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String
+  passwordHash     String
+  // "admin" | "manager" | "staff" (string because SQLite has no enums)
+  role             String   @default("staff")
+  // data URL of the uploaded profile picture (png/jpeg/webp/gif)
+  avatar           String?
+  // UI theme id: "blue" | "emerald" | "violet" | "rose" | "amber"
+  theme            String   @default("blue")
+  // "light" | "dark"
+  colorMode        String   @default("light")
+  // desktop sidebar collapsed to an icon rail
+  sidebarCollapsed Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orders Order[]
+  stockMovements StockMovement[]
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  city      String?
+  country   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  sku          String   @unique
+  name         String
+  description  String?
+  price        Float    @default(0)
+  cost         Float    @default(0)
+  stock        Int      @default(0)
+  reorderLevel Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orderItems OrderItem[]
+  movements  StockMovement[]
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  // "draft" | "confirmed" | "shipped" | "completed" | "cancelled"
+  status      String   @default("draft")
+  notes       String?
+  total       Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  unitPrice Float
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+}
+
+/// Append-only stock card: one row per movement of units into or out of a
+/// product, with the stock on hand immediately after it. `quantity` is signed
+/// (positive received, negative issued) so a single column tells the story.
+model StockMovement {
+  id        String   @id @default(cuid())
+  // "opening" | "receipt" | "issue" | "order" | "adjustment"
+  type      String
+  quantity  Int
+  /// Stock on hand after this movement — the running balance.
+  balance   Int
+  /// Free text pointer at where it came from or went ("PO-1042", "SO-0007").
+  reference String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId, createdAt])
+}
+
+/// Singleton row (always id = "singleton") holding the workspace's business
+/// details — the name/logo shown top-left and the contact info on Settings.
+model Business {
+  id        String   @id @default("singleton")
+  name      String   @default("OpenERP")
+  logo      String? // data URL (png/jpeg/webp/gif)
+  email     String?
+  phone     String?
+  address   String?
+  website   String?
+  /// ISO 4217 code every figure in the workspace is shown in ("USD", "EUR", …)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,14 @@
+# Normalise line endings: LF in the repository, checked out as LF everywhere.
+# Keeps diffs clean when a Windows (autocrlf) and a Linux/macOS machine both commit.
+* text=auto eol=lf
+
+# Images are already compressed
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+
+# SQLite must never be line-ending-normalised or diffed
+*.db binary

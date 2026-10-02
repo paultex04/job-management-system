@@ -1,0 +1,387 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =============================== Themes =============================== */
+/* Accent theme (buttons, links, active nav, avatars, focus rings).        */
+/* --brand is our own token (safe name, no collision with shadcn's        */
+/* --accent). shadcn's primary/ring tokens are wired to it at the bottom.  */
+
+:root,
+[data-theme="blue"] {
+  --brand: #2563eb;
+  --brand-hover: #1d4ed8;
+  --brand-soft: #eff6ff;
+  --brand-contrast: #ffffff;
+}
+
+[data-theme="emerald"] {
+  --brand: #059669;
+  --brand-hover: #047857;
+  --brand-soft: #ecfdf5;
+  --brand-contrast: #ffffff;
+}
+
+[data-theme="violet"] {
+  --brand: #7c3aed;
+  --brand-hover: #6d28d9;
+  --brand-soft: #f5f3ff;
+  --brand-contrast: #ffffff;
+}
+
+[data-theme="rose"] {
+  --brand: #e11d48;
+  --brand-hover: #be123c;
+  --brand-soft: #fff1f2;
+  --brand-contrast: #ffffff;
+}
+
+[data-theme="amber"] {
+  --brand: #d97706;
+  --brand-hover: #b45309;
+  --brand-soft: #fffbeb;
+  --brand-contrast: #ffffff;
+}
+
+/* ============================ Color mode ============================== */
+
+:root {
+  color-scheme: light;
+
+  /* next/font Geist variables (layout.tsx) exposed to Tailwind's font
+     utilities via @theme inline { --font-sans: var(--font-sans) }. */
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* ── Sidebar animation speed ───────────────────────────────────────────
+     The single knob for the collapse/expand animation: consumed by the
+     registry sidebar (sidebar.tsx uses duration-(--sidebar-duration)).
+     E.g. "250ms", "500ms", "1s". */
+  --sidebar-duration: 500ms;
+
+  /* ── Semantic status tokens (light) ─────────────────────────────────────
+     Status chips use these through Tailwind's color utilities
+     (bg-success/10 text-success …) — no `dark:` variants anywhere;
+     .dark below swaps the values. */
+  --success: oklch(0.596 0.145 163.225); /* emerald-600 */
+  --warning: oklch(0.555 0.163 48.998); /* amber-700  */
+  --info: oklch(0.546 0.245 262.881); /* blue-600   */
+
+  /* ── shadcn/ui tokens (light) ────────────────────────────────────────── */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Dark mode lives on the .dark class (set next to data-mode in layout.tsx). */
+[data-mode="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* ======================== App shell (registry) ========================== */
+/* The sidebar/top bar/nav now come from the shadcn registry — only this     */
+/* active-item override is ours: brand pill on top of the registry menu      */
+/* button. Unlayered on purpose so it beats Tailwind's hover/active utils.   */
+
+[data-slot="sidebar-menu-button"][data-active="true"] {
+  background-color: var(--sidebar-primary);
+  color: var(--sidebar-primary-foreground);
+  font-weight: 500;
+}
+
+[data-slot="sidebar-menu-button"][data-active="true"]:hover,
+[data-slot="sidebar-menu-button"][data-active="true"]:focus-visible {
+  background-color: color-mix(in srgb, var(--sidebar-primary) 86%, black);
+  color: var(--sidebar-primary-foreground);
+}
+
+.swatch {
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  background: var(--card);
+}
+
+.swatch:hover {
+  border-color: var(--input);
+}
+
+.swatch[data-active="true"] {
+  border-color: var(--brand);
+}
+
+.swatch-color {
+  display: block;
+  height: 2.5rem;
+  border-radius: 0.375rem;
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  --success: oklch(0.765 0.177 163.223); /* emerald-400 */
+  --warning: oklch(0.769 0.188 70.08); /* amber-400   */
+  --info: oklch(0.707 0.165 254.624); /* blue-400    */
+}
+
+/* ── Brand themes drive shadcn's primary/ring tokens ─────────────────────
+   Declared after .dark so the active theme's brand color wins over both
+   the light :root defaults and the dark overrides, in either color mode.
+   The sidebar tokens pin the rail to a brand-tinted dark surface in both
+   modes (the rail is dark chrome by design — this replaces the old
+   hand-rolled `.sidebar` background). */
+[data-theme] {
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-contrast, #fff);
+  --ring: var(--brand);
+  --sidebar-primary: var(--brand);
+  --sidebar: color-mix(in srgb, var(--brand) 26%, #0f172a);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgb(255 255 255 / 9%);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: var(--brand);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    /* sticky topbar must not cover anchors / focused elements */
+    scroll-padding-top: 4.5rem;
+    /* no double-tap zoom delay on interactive elements */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgb(0 0 0 / 12%);
+  }
+  :where(h1, h2, h3, h4, h5, h6) {
+    scroll-margin-top: 4.5rem;
+  }
+}
+
+/* ── View transitions (Next.js <ViewTransition> + <Link transitionTypes>) ─
+   Page content is wrapped in <PageTransition> and slides directionally for
+   tagged links (nav-forward / nav-back) and crossfades for everything else.
+   The persistent chrome (top bar + rail) is *named* so it is excluded from
+   the root snapshot, then frozen — only the content appears to move. */
+
+:root {
+  --vt-exit: 150ms; /* old content leaves — fast */
+  --vt-enter: 210ms; /* new content arrives — gentle, after the exit */
+  --vt-move: 300ms; /* directional slide */
+}
+
+::view-transition-group(app-topbar),
+::view-transition-group(app-sidebar) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(app-topbar),
+::view-transition-old(app-sidebar) {
+  display: none; /* no ghost frame of the old chrome */
+}
+::view-transition-new(app-topbar),
+::view-transition-new(app-sidebar) {
+  animation: none;
+}
+
+/* the overlay must not swallow clicks while it runs */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(.nav-forward) {
+  --slide-offset: -40px;
+  animation:
+    var(--vt-exit) ease-in both fade reverse,
+    var(--vt-move) ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 40px;
+  animation:
+    var(--vt-enter) ease-out var(--vt-exit) both fade,
+    var(--vt-move) ease-in-out both slide;
+}
+
+::view-transition-old(.nav-back) {
+  --slide-offset: 40px;
+  animation:
+    var(--vt-exit) ease-in both fade reverse,
+    var(--vt-move) ease-in-out both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -40px;
+  animation:
+    var(--vt-enter) ease-out var(--vt-exit) both fade,
+    var(--vt-move) ease-in-out both slide;
+}
+
+@keyframes fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+@keyframes slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────
+   Sidebar rail animation (--sidebar-duration), label/width transitions,
+   dialog animations, spinners — all instant when the OS asks for less
+   motion. View transitions are browser-driven pseudo-element animations,
+   so they need their own opt-out. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* ── Focus visibility ───────────────────────────────────────────────────
+   shadcn components ship their own focus-visible ring; these are the raw
+   shell controls (theme swatches, anything raw inside the rail) that would
+   otherwise fall back to the UA outline. */
+.swatch:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+[data-slot="sidebar"] :is(a, button):not([data-slot="sidebar-menu-button"]):focus-visible {
+  outline: 2px solid var(--sidebar-ring);
+  outline-offset: 2px;
+}
